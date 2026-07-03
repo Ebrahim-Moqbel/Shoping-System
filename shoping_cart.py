@@ -43,3 +43,70 @@ class Product:
         else:
             self._stock += amount
             return True
+
+
+class CartItem:
+    """
+    A class modelling a product and the quantity required for purchase,
+    and calculating the total cost for that quantity.
+    """
+
+    def __init__(self, product: Product, quantity: int):
+        # initialise the two private attributes
+        self._product = product   # referencing the Product class to use its methods
+        self._quantity = quantity
+
+    # two getter methods returning their respective values
+    def getProduct(self):
+        return self._product
+
+    def getQuantity(self):
+        return self._quantity
+
+    def getTotalPrice(self):
+        # calculate price * quantity using the product's own getPrice method
+        return self._product.getPrice() * self._quantity
+
+
+class ShoppingCart:
+    '''
+    A class modelling a collection of CartItems, which can be added or
+    removed after appropriate checking of the referenced product stock.
+    '''
+
+    def __init__(self):
+        # instance variable: an empty list that will hold CartItem objects
+        self._items = []
+
+    def getItems(self):
+        # return the list of CartItem objects currently in the cart
+        return self._items
+
+    def addItem(self, product, quantity):
+        # check if product has enough stock and then update it accordingly by deducting
+        if quantity <= product.getStock():
+            product.updateStock(-quantity)
+            self._items.append(CartItem(product, quantity))
+            return True
+        else:
+            return False
+
+    def removeItem(self, product):
+        # search the list of CartItems to find the matching product
+        for item in self._items:
+            if item.getProduct() == product:
+                # update the stock using this item's own quantity
+                product.updateStock(item.getQuantity())
+                # remove the matching CartItem from the items list
+                self._items.remove(item)
+                # return True since the product was found and updated
+                return True
+        # return False if no matching product was found
+        return False
+
+    def getCartTotal(self):
+        # return the sum of all the CartItem totals in the cart
+        total = 0
+        for item in self._items:
+            total += item.getTotalPrice()
+        return total
